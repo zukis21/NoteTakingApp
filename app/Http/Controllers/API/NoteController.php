@@ -59,20 +59,26 @@ class NoteController extends Controller
 
     public function update(UpdateNoteRequest $request, Note $note): JsonResponse
     {
-        // Manual authorization check
         $this->authorize('update', $note);
 
-        $this->noteService->updateNote($note->id, $request->validated());
-        return response()->json($note->fresh());
+        $validated = $request->validated();
+
+        // Update note
+        $this->noteService->updateNote($note->id, $validated);
+
+        // Return updated note
+        return response()->json($note->fresh()->load('user', 'comments.user', 'sharedUsers'));
     }
 
     public function destroy(Note $note): JsonResponse
     {
-        // Manual authorization check
         $this->authorize('delete', $note);
 
         $this->noteService->deleteNote($note->id);
-        return response()->json(null, 204);
+
+        return response()->json([
+            'message' => 'Note deleted successfully'
+        ], 200);
     }
 
     public function share(Request $request, Note $note): JsonResponse

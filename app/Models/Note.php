@@ -9,7 +9,17 @@ class Note extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'title', 'content', 'is_public'];
+    protected $fillable = [
+        'user_id',
+        'title',
+        'content',
+        'is_public',
+        'edited_at'
+    ];
+
+    protected $casts = [
+        'edited_at' => 'datetime',
+    ];
 
     public function user()
     {
@@ -24,5 +34,10 @@ class Note extends Model
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function wasEdited()
+    {
+        return !is_null($this->edited_at);
     }
 }

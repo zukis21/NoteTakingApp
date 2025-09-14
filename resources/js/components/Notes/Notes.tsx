@@ -1,23 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-
-interface Note {
-    id: number;
-    title: string;
-    content: string;
-    is_public: boolean;
-    user_id: number;
-    created_at: string;
-    updated_at: string;
-}
+import { Note, NotesResponse } from "../../types/notes";
 
 const Notes: React.FC = () => {
-    const [notes, setNotes] = useState<{
-        personal_notes: Note[];
-        shared_notes: Note[];
-        public_notes: Note[];
-    }>({
+    const [notes, setNotes] = useState<NotesResponse>({
         personal_notes: [],
         shared_notes: [],
         public_notes: [],
@@ -36,7 +23,7 @@ const Notes: React.FC = () => {
 
     const fetchNotes = async () => {
         try {
-            const response = await axios.get("/api/notes");
+            const response = await axios.get<NotesResponse>("/api/notes");
             setNotes(response.data);
         } catch (error) {
             console.error("Error fetching notes:", error);
@@ -58,13 +45,17 @@ const Notes: React.FC = () => {
     };
 
     if (loading) {
-        return <div>Loading notes...</div>;
+        return (
+            <div className="flex justify-center items-center min-h-64">
+                Loading notes...
+            </div>
+        );
     }
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold">My Notes</h1>
+                <h1 className="text-2xl font-bold text-gray-900">My Notes</h1>
                 <button
                     onClick={() => setShowCreateForm(true)}
                     className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
@@ -73,6 +64,7 @@ const Notes: React.FC = () => {
                 </button>
             </div>
 
+            {/* Create Form */}
             {showCreateForm && (
                 <div className="bg-white p-6 rounded-lg shadow-md">
                     <h2 className="text-xl font-semibold mb-4">
@@ -81,7 +73,7 @@ const Notes: React.FC = () => {
                     <form onSubmit={handleCreateNote} className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700">
-                                Title
+                                Title *
                             </label>
                             <input
                                 type="text"
@@ -98,7 +90,7 @@ const Notes: React.FC = () => {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700">
-                                Content
+                                Content *
                             </label>
                             <textarea
                                 required
@@ -136,14 +128,14 @@ const Notes: React.FC = () => {
                         <div className="flex space-x-2">
                             <button
                                 type="submit"
-                                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+                                className="bg-blue-500 hover:blue-600 text-white px-4 py-2 rounded"
                             >
                                 Create
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setShowCreateForm(false)}
-                                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                                className="bg-gray-500 hover:gray-600 text-white px-4 py-2 rounded"
                             >
                                 Cancel
                             </button>
@@ -154,32 +146,44 @@ const Notes: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-4">
-                    <h2 className="text-xl font-semibold">Personal Notes</h2>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                        Personal Notes
+                    </h2>
                     {notes.personal_notes.map((note) => (
                         <NoteCard key={note.id} note={note} type="personal" />
                     ))}
                     {notes.personal_notes.length === 0 && (
-                        <p className="text-gray-500">No personal notes yet.</p>
+                        <p className="text-gray-500 text-center py-4">
+                            No personal notes yet.
+                        </p>
                     )}
                 </div>
 
                 <div className="space-y-4">
-                    <h2 className="text-xl font-semibold">Shared With Me</h2>
-                    {notes.shared_notes.map((note) => (
+                    <h2 className="text-xl font-semibold text-gray-900">
+                        Shared With Me
+                    </h2>
+                    {notes.shared_notes.map((note: any) => (
                         <NoteCard key={note.id} note={note} type="shared" />
                     ))}
                     {notes.shared_notes.length === 0 && (
-                        <p className="text-gray-500">No shared notes yet.</p>
+                        <p className="text-gray-500 text-center py-4">
+                            No shared notes yet.
+                        </p>
                     )}
                 </div>
 
                 <div className="space-y-4">
-                    <h2 className="text-xl font-semibold">Public Notes</h2>
-                    {notes.public_notes.map((note) => (
+                    <h2 className="text-xl font-semibold text-gray-900">
+                        Public Notes
+                    </h2>
+                    {notes.public_notes.map((note: any) => (
                         <NoteCard key={note.id} note={note} type="public" />
                     ))}
                     {notes.public_notes.length === 0 && (
-                        <p className="text-gray-500">No public notes yet.</p>
+                        <p className="text-gray-500 text-center py-4">
+                            No public notes yet.
+                        </p>
                     )}
                 </div>
             </div>
@@ -187,16 +191,31 @@ const Notes: React.FC = () => {
     );
 };
 
-const NoteCard: React.FC<{ note: Note; type: string }> = ({ note, type }) => {
+interface NoteCardProps {
+    note: Note;
+    type: "personal" | "shared" | "public";
+}
+
+const NoteCard: React.FC<NoteCardProps> = ({ note, type }) => {
     return (
-        <div className="bg-white p-4 rounded-lg shadow-md">
-            <h3 className="font-semibold text-lg mb-2">{note.title}</h3>
+        <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div className="flex justify-between items-start mb-2">
+                <h3 className="font-semibold text-lg text-gray-900 mb-2">
+                    {note.title}
+                </h3>
+                {note.edited_at && (
+                    <span className="text-xs text-orange-500 bg-orange-100 px-2 py-1 rounded-full">
+                        Edited
+                    </span>
+                )}
+            </div>
             <p className="text-gray-600 mb-4 line-clamp-3">{note.content}</p>
             <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-500">
                     {type === "personal" && "Personal"}
                     {type === "shared" && "Shared"}
                     {type === "public" && "Public"}
+                    {note.edited_at && " • Edited"}
                 </span>
                 <Link
                     to={`/notes/${note.id}`}
