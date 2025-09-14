@@ -46,3 +46,37 @@ NoteTaking/
 ├── tests/ # PHPUnit tests
 ├── vite.config.ts # Vite configuration
 └── tsconfig.json # TypeScript configuration
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1. Clone Repository
+
+-   Clone Repository : git clone https://github.com/zukis21/NoteTakingApp.git
+-   cd NoteTakingApp
+
+### 2. Install Dependencies
+
+-   composer install
+-   npm install
+
+### 3. Environment Setup
+
+-   php artisan key:generate
+-   Set database connection in .env file
+    DB_CONNECTION=pgsql
+    DB_HOST=127.0.0.1
+    DB_PORT=5432
+    DB_DATABASE=note_taking_app
+    DB_USERNAME=postgres
+    DB_PASSWORD=
+
+### 4. Database Migration & Seeder
+
+-   php artisan migrate --seed
+
+### 5. Run Server
+
+-   php artisan serve
+-   npm run dev
