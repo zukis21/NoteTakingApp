@@ -177,11 +177,6 @@ Jalankan Frontend React:
 npm run dev
 ```
 
-Aplikasi dapat diakses melalui:
-
-```text
-http://localhost:8000
-```
 
 ---
 
